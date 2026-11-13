@@ -1,0 +1,11 @@
+Good morning everyone, and welcome to re:Invent. It is great to be back here in Las Vegas with all of you. This year more than sixty thousand builders have joined us in person, and many more are watching online.
+
+Let me start with a story. Last year, one of our customers, a logistics company, put their first AI agent into production. It worked beautifully in the demo. But two weeks after launch, the agent started making strange decisions, and nobody on the team could explain why. They had no traces, no evaluation, and no way to replay what happened. It took them nine days to find the root cause.
+
+We heard the same story again and again. The number one request from customers this year was simple: help us understand what our agents are doing, and help us trust them in production.
+
+So today, I am excited to announce three new capabilities in Amazon Bedrock AgentCore. First, AgentCore Observability now captures every step an agent takes, every tool call and every model response, and stores it in one place, so you can search it and replay it. Second, we are launching continuous evaluation. Instead of testing your agent only before you ship, AgentCore can now score real production traffic against the quality rules you define, and alert you in CloudWatch when quality drops. And third, policy controls. You can now write a rule in plain English, such as never issue a refund above five hundred dollars without human approval, and AgentCore will enforce it outside of the model, where a prompt injection cannot override it.
+
+All three capabilities work with any framework, including Strands Agents and LangGraph, and with any model. They are generally available today in six regions, including Tokyo.
+
+Now let's talk about cost. Many of you told us that inference is the biggest line item in your AI budget. With our new Graviton five processors and the next generation of Trainium chips, we are reducing the price of running Claude and Amazon Nova models on Bedrock by up to forty percent. That is not a promotion. That is the new price, starting today.

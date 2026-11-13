@@ -1,0 +1,7 @@
+*.xcodeproj
+build/
+DerivedData/
+.DS_Store
+TestAudio/*.wav
+TestAudio/*.m4a
+.env

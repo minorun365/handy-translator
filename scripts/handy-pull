@@ -1,0 +1,30 @@
+#!/bin/bash
+# 通訳くんが S3 へ送った記録を、Mac の手元へ取り込む。
+#
+#   scripts/handy-pull            取り込んで、新しい順に10件を一覧する
+#
+# 設定は環境変数か ~/.config/handy-translator/env に書く（KEY=値 の行）。
+#   HANDY_BUCKET   バケット名（必須）
+#   HANDY_PROFILE  AWS CLI のプロファイル名（省略時は既定の認証情報）
+#   HANDY_DIR      取り込み先（省略時は ~/handy-translator-sessions）
+set -euo pipefail
+
+config="$HOME/.config/handy-translator/env"
+if [ -f "$config" ]; then
+  set -a
+  # shellcheck disable=SC1090
+  . "$config"
+  set +a
+fi
+
+: "${HANDY_BUCKET:?HANDY_BUCKET にバケット名を入れてください（$config に書けます）}"
+dest="${HANDY_DIR:-$HOME/handy-translator-sessions}"
+profile=()
+if [ -n "${HANDY_PROFILE:-}" ]; then profile=(--profile "$HANDY_PROFILE"); fi
+
+mkdir -p "$dest"
+aws s3 sync "s3://$HANDY_BUCKET/sessions/" "$dest/" "${profile[@]}" --only-show-errors
+echo "取り込み先: $dest"
+find "$dest" -name '*.md' -type f | sort -r | head -10 | while read -r file; do
+  printf '%s  %s\n' "$(basename "$file" .md)" "$(head -1 "$file" | cut -c3-)"
+done

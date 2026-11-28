@@ -5,3 +5,4 @@ DerivedData/
 TestAudio/*.wav
 TestAudio/*.m4a
 .env
+Sources/Preset.plist

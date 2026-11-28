@@ -1,5 +1,6 @@
 import AVFoundation
 import CoreMedia
+import CryptoKit
 import Foundation
 import Speech
 import SwiftUI
@@ -93,6 +94,7 @@ final class AppModel: ObservableObject {
         #if os(iOS)
         UIDevice.current.isBatteryMonitoringEnabled = true
         #endif
+        applyBundledPreset()
         applyLaunchOverrides()
         sessions = SessionStore.list()
         Task { await uploadPending() }
@@ -111,6 +113,24 @@ final class AppModel: ObservableObject {
         KeyStore.save(value, account: KeyStore.s3)
         s3Credentials = KeyStore.load(KeyStore.s3)
         Task { await uploadPending() }
+    }
+
+    /// 自分用のビルド：Sources/Preset.plist（git 管理外）を同梱すると、起動時に設定へ入れる。
+    /// 同じ内容は一度だけ入れ、Preset.plist の中身が変わったときだけ入れ直す。
+    private func applyBundledPreset() {
+        guard let url = Bundle.main.url(forResource: "Preset", withExtension: "plist"),
+              let data = try? Data(contentsOf: url),
+              let preset = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: String]
+        else { return }
+        let fingerprint = SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+        let defaults = UserDefaults.standard
+        guard defaults.string(forKey: "presetApplied") != fingerprint else { return }
+        if let key = preset["BedrockAPIKey"], !key.isEmpty { setAPIKey(key) }
+        if let value = preset["Region"], !value.isEmpty { region = value }
+        if let key = preset["S3Credentials"], !key.isEmpty { setS3Key(key) }
+        if let value = preset["S3Bucket"], !value.isEmpty { s3Bucket = value }
+        if let value = preset["S3Region"], !value.isEmpty { s3Region = value }
+        defaults.set(fingerprint, forKey: "presetApplied")
     }
 
     /// 検証用：起動時の環境変数でキーと入力ファイルを渡せる。
